@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-100 text-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Lab Arcade | Interactive Game</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 5px;
+        }
+
+        /* 3D Push Button Effect */
+        .btn-3d {
+            position: relative;
+            transition: all 0.1s ease;
+            border-bottom-width: 6px;
+        }
+        .btn-3d:active {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+        }
+
+        /* Arcade Cabinet Card styling */
+        .arcade-cabinet-big {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.06);
+        }
+        .arcade-cabinet-big::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #4f46e5, #9333ea);
+        }
+        .arcade-cabinet-big:hover {
+            transform: translateY(-6px);
+            border-color: #4f46e5;
+            box-shadow: 0 16px 30px -10px rgba(79, 70, 229, 0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-full font-sans pb-12 bg-slate-50 text-slate-900">
+
+    <!-- GLOBAL HEADER -->
+    <header class="border-b-4 border-slate-300 bg-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/20">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 flex items-center gap-3">
+                        PROBABILITY LAB ARCADE
+                    </h1>
+                    <p class="text-sm text-slate-600 font-bold">Bridging the Gap between Theory & Experiment (Law of Large Numbers)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" class="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-sm font-bold shadow-sm transition">
+                    <span id="soundIcon">🔊</span>
+                    <span>Sound: ON</span>
+                </button>
+                <!-- Help button -->
+                <button id="helpBtn" class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-slate-300 bg-white hover:bg-indigo-600 hover:text-white text-slate-800 font-extrabold text-lg shadow-sm transition">
+                    ?
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 mt-8">
+        
+        <!-- PAGE 1: ARCADE LAUNCHER SCREEN -->
+        <section id="launcherScreen" class="fade-in">
+            <!-- Hero Title Block -->
+            <div class="bg-white border-4 border-slate-300 rounded-3xl p-8 mb-8 text-center max-w-3xl mx-auto shadow-sm">
+                <h2 class="text-3xl sm:text-4xl font-black text-slate-950 mb-3 uppercase tracking-tight">
+                    🎮 Choose Your Machine! 🕹️
+                </h2>
+                <p class="text-base text-slate-700 leading-relaxed font-bold max-w-xl mx-auto">
+                    Welcome to the Probability Laboratory! Click on any game machine below to start rolling, flipping, spinning, or drawing. Watch the live graph update in real time!
+                </p>
+            </div>
+
+            <!-- Arcade Grid (Massive visual cards with sight-based emojis) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                
+                <!-- 1. Coins -->
+                <div data-launcher-mode="coins" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🪙</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Coins</h3>
+                        <p class="text-sm text-slate-600 font-bold">Flip Heads or Tails and test the classic 50% chance.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 2. Dice -->
+                <div data-launcher-mode="dice" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🎲</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">6-Sided Dice</h3>
+                        <p class="text-sm text-slate-600 font-bold">Roll dice and check if each face gets an equal score.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 3. Dice Subtraction -->
+                <div data-launcher-mode="dice_subtraction" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">➖</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Dice Subtraction</h3>
+                        <p class="text-sm text-slate-600 font-bold">Subtract the smaller die from the larger one. Which difference wins?</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 4. Dice Sums -->
+                <div data-launcher-mode="dice_sums" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">➕</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Two Dice Sums</h3>
+                        <p class="text-sm text-slate-600 font-bold">Roll a pair and watch the bell curve build around the lucky Sum of 7.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 5. Marbles -->
+                <div data-launcher-mode="marbles" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🔮</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Marble Bag</h3>
+                        <p class="text-sm text-slate-600 font-bold">Draw marbles from your bag. Tweak counts to change the odds!</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 6. Skittles -->
+                <div data-launcher-mode="skittles" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🍬</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Skittles Pack</h3>
+                        <p class="text-sm text-slate-600 font-bold">Open candy packs and track the color distributions.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 7. Card Suits -->
+                <div data-launcher-mode="cards_suit" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🎴</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Card Suits</h3>
+                        <p class="text-sm text-slate-600 font-bold">Draw cards and check Spades, Clubs, Hearts, and Diamonds.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 8. Card Values -->
+                <div data-launcher-mode="cards_value" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🃏</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Card Values</h3>
+                        <p class="text-sm text-slate-600 font-bold">Check your luck drawing royal Face cards versus Number cards.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 9. Spinner -->
+                <div data-launcher-mode="spinner" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🎯</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Color Spinner</h3>
+                        <p class="text-sm text-slate-600 font-bold">Spin the wheel! Customize colors to change sector sizes.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 10. Quiz Guesser -->
+                <div data-launcher-mode="quiz" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">📝</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Quiz Guesser</h3>
+                        <p class="text-sm text-slate-600 font-bold">Guess randomly on tests. Watch the bell curve shape emerge!</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 11. Weather Forecaster -->
+                <div data-launcher-mode="weather" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🌦️</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Weather Forecaster</h3>
+                        <p class="text-sm text-slate-600 font-bold">Set the rain slider and check if the forecast matches actual seasons.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+
+                <!-- 12. Letter Tiles -->
+                <div data-launcher-mode="letters" class="arcade-cabinet-big rounded-3xl p-6 flex flex-col items-center justify-between text-center hover:bg-slate-50 cursor-pointer">
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl my-4">🔤</div>
+                        <h3 class="text-xl font-black text-slate-950 mb-2">Letter Tiles</h3>
+                        <p class="text-sm text-slate-600 font-bold">Pick words and draw letters. Customize letters to change the odds.</p>
+                    </div>
+                    <button class="mt-6 w-full py-2.5 bg-indigo-600 border-b-4 border-indigo-800 hover:border-b-2 hover:translate-y-[2px] text-white font-extrabold text-sm rounded-xl transition-all">PLAY MENU →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 2: SIMULATION WORKSPACE SCREEN -->
+        <section id="workspaceScreen" class="fade-in hidden">
+            
+            <!-- Navigation Header -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b-4 border-slate-300">
+                <button id="backBtn" class="flex items-center gap-2 px-6 py-3 rounded-2xl border-4 border-slate-400 bg-white hover:bg-slate-100 text-slate-950 font-black text-base shadow-sm transition active:scale-95">
+                    <span>⬅</span> Back to Arcade Menu
+                </button>
+                <div class="flex items-center gap-4">
+                    <span id="activeWorkspaceBadge" class="text-5xl">🪙</span>
+                    <div>
+                        <h2 id="activeWorkspaceTitle" class="text-3xl font-black text-slate-950 uppercase tracking-tight">Active Simulation</h2>
+                        <p id="activeWorkspaceDesc" class="text-sm text-slate-700 font-bold italic"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arcade Status Panel -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 mb-8 bg-white border-4 border-slate-300 rounded-3xl shadow-sm">
+                <div>
+                    <span class="text-xs text-slate-600 uppercase tracking-widest font-black block mb-0.5">Total Runs</span>
+                    <div id="statTotalRuns" class="text-3xl font-black text-slate-950">0</div>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-600 uppercase tracking-widest font-black block mb-0.5">Total Objects Generated</span>
+                    <div id="statTotalTrials" class="text-3xl font-black text-indigo-700">0</div>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-600 uppercase tracking-widest font-black block mb-0.5">Current Machine Status</span>
+                    <div id="statMachineStatus" class="text-xl font-bold text-emerald-700 uppercase tracking-tight">Ready</div>
+                </div>
+                <div>
+                    <!-- Circular Reset Button -->
+                    <button id="resetBtn" class="btn-3d w-full bg-rose-600 border-b-6 border-rose-800 active:border-b-2 active:translate-y-[4px] text-white font-extrabold text-sm py-2 px-4 rounded-xl shadow transition-all uppercase">
+                        Clear Score
+                    </button>
+                </div>
+            </div>
+
+            <!-- Two-Column Workspace Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- LEFT COLUMN: TACTILE CONTROLS (5 COLS) -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- DYNAMIC ARCADE MACHINE CONTROLS -->
+                    <div class="bg-white border-4 border-slate-300 rounded-3xl p-6 shadow-sm">
+                        <h3 class="text-lg font-black text-slate-950 mb-5 flex items-center gap-2 border-b-2 border-slate-200 pb-2">
+                            <span class="text-indigo-600">01.</span> Setup Machine
+                        </h3>
+                        
+                        <!-- QUANTITY CHOICE BUTTONS -->
+                        <div id="quantityContainer" class="mb-8">
+                            <label id="quantityLabel" class="block text-sm font-extrabold text-slate-700 uppercase tracking-wider mb-3">Quantity of Items</label>
+                            <div id="quantityButtons" class="flex flex-wrap gap-2">
+                                <!-- Dynamic Friendly Buttons Inserted Here -->
+                            </div>
+                            <span id="quantityHelp" class="text-xs text-slate-600 mt-2 block font-bold"></span>
+                        </div>
+
+                        <!-- CONTEXTUAL ADJUSTERS (Plus/Minus style) -->
+                        <div id="contextualSettings" class="mb-8 p-5 bg-slate-100 border-4 border-slate-300 rounded-2xl hidden">
+                            <h4 class="text-xs font-black text-slate-800 uppercase tracking-widest mb-4 border-b border-slate-300 pb-1">Context Options</h4>
+                            <div id="contextInputs" class="space-y-4">
+                                <!-- Dynamic adjusters with plus/minus inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- PULL LEVER / RUN BUTTONS -->
+                        <div>
+                            <label id="runActionLabel" class="block text-sm font-extrabold text-slate-700 uppercase tracking-wider mb-3">Pull Lever (Run Iterations)</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <!-- Large tactile buttons -->
+                                <button data-run="1" class="run-btn btn-3d py-4 bg-emerald-600 border-b-6 border-emerald-800 text-white rounded-2xl font-black text-lg shadow-md uppercase active:scale-95">1x</button>
+                                <button data-run="10" class="run-btn btn-3d py-4 bg-indigo-600 border-b-6 border-indigo-800 text-white rounded-2xl font-black text-lg shadow-md uppercase active:scale-95">10x</button>
+                                <button data-run="50" class="run-btn btn-3d py-4 bg-amber-600 border-b-6 border-amber-800 text-white rounded-2xl font-black text-lg shadow-md uppercase active:scale-95">50x</button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div id="simProgressBarContainer" class="mt-6 hidden">
+                            <div class="flex justify-between items-center text-xs font-bold text-slate-600 mb-1">
+                                <span id="simProgressStatus">Simulating...</span>
+                                <span id="simProgressPct">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden border border-slate-300">
+                                <div id="simProgressBar" class="bg-indigo-600 h-full pulse-bar transition-all duration-100" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: SCOREBOARD & GRAPH (7 COLS) -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <!-- SINGLE GIANT DYNAMIC BAR CHART -->
+                    <div class="bg-white border-4 border-slate-300 rounded-3xl p-6 shadow-sm">
+                        <h3 class="text-lg font-black text-slate-950 flex items-center gap-2 mb-4">
+                            <span class="text-emerald-600">📊</span> Live Graph View
+                        </h3>
+                        <div class="bg-white rounded-2xl p-4 border-4 border-slate-200">
+                            <!-- Stretched Canvas -->
+                            <canvas id="barChartCanvas" class="w-full h-80 md:h-96"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- SIMPLIFIED SCOREBOARD GRID -->
+                    <div class="bg-white border-4 border-slate-300 rounded-3xl p-6 shadow-sm">
+                        <h3 class="text-lg font-black text-slate-950 mb-5 border-b-2 border-slate-200 pb-2">
+                            <span class="text-indigo-600">🎰</span> Scoreboard Breakdown
+                        </h3>
+                        
+                        <div id="scoreboardGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Dynamic Friendly outcome cards -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- HELP MODAL -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white border-4 border-slate-400 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button id="closeHelpBtn" class="absolute top-4 right-4 text-slate-500 hover:text-black font-extrabold text-3xl">×</button>
+            <h3 class="text-2xl font-black text-slate-950 mb-4 flex items-center gap-2">
+                <span>📚</span> How to Play
+            </h3>
+            <div class="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed font-bold">
+                <div>
+                    <strong class="text-indigo-700 block mb-1">1. Choose a cabinet:</strong>
+                    Click on any game machine icon to start that experiment.
+                </div>
+                <div>
+                    <strong class="text-indigo-700 block mb-1">2. Configure variables:</strong>
+                    Press the large green button selectors to set quantities, or adjust weights using the large <span class="bg-slate-200 px-2 py-0.5 rounded border border-slate-300">[ + ]</span> and <span class="bg-slate-200 px-2 py-0.5 rounded border border-slate-300">[ − ]</span> buttons.
+                </div>
+                <div>
+                    <strong class="text-indigo-700 block mb-1">3. Roll/Flip/Spin:</strong>
+                    Click the satisfying <span class="text-emerald-700">1x</span>, <span class="text-indigo-700">10x</span>, or <span class="text-amber-700">50x</span> 3D arcade buttons. You will see the bars jump and the scores tick up instantly!
+                </div>
+            </div>
+            <button id="closeHelpBtnBig" class="w-full mt-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-base rounded-2xl transition shadow-sm active:scale-95">Let's Play!</button>
+        </div>
+    </div>
+
+    <!-- CORE JAVASCRIPT LOGIC -->
+    <script>
+        // --- SOUND SYNTHESIS ENGINE (WEB AUDIO API) ---
+        const AudioLab = {
+            ctx: null,
+            muted: false,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playTone(freq, type, duration, vol = 0.05) {
+                if (this.muted) return;
+                this.init();
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gainNode = this.ctx.createGain();
+                    
+                    osc.type = type || 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gainNode.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(this.ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {
+                    console.log("Audio play failed:", e);
+                }
+            },
+            playSuccess() {
+                this.playTone(523.25, 'triangle', 0.1, 0.06); // C5
+                setTimeout(() => this.playTone(659.25, 'triangle', 0.15, 0.06), 80); // E5
+            },
+            playChirp() {
+                this.playTone(880, 'sine', 0.08, 0.04);
+            },
+            playReset() {
+                this.playTone(440, 'sawtooth', 0.12, 0.03);
+                setTimeout(() => this.playTone(220, 'sawtooth', 0.2, 0.03), 100);
+            }
+        };
+
+        // --- MATHEMATICAL HELPERS ---
+        function choose(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            if (k > n / 2) k = n - k;
+            let res = 1;
+            for (let i = 1; i <= k; i++) {
+                res = res * (n - i + 1) / i;
+            }
+            return res;
+        }
+
+        function binomialPDF(n, k, p = 0.5) {
+            return choose(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        }
+
+        // --- APPLICATION STATE ---
+        const state = {
+            mode: 'coins',
+            quantity: 1,
+            totalRuns: 0,
+            totalTrials: 0,
+            experimentalCounts: {},
+            config: {
+                marbles: { counts: { red: 5, blue: 5, green: 5, yellow: 5 } },
+                skittles: { counts: { red: 6, orange: 6, yellow: 6, green: 6, purple: 6 } },
+                spinner: { weights: { red: 10, blue: 10, yellow: 10, green: 10 } },
+                quiz: { maxQ: 10 },
+                weather: { rainChance: 30 },
+                letters: { word: "MATHEMATICS" }
+            }
+        };
+
+        // Metadata for all 12 engines
+        const MODES = {
+            coins: {
+                title: "Coins (Heads vs Tails)",
+                emoji: "🪙",
+                action: "Flip",
+                desc: "Flip multiple coins simultaneously and record counts of Heads vs Tails. Theoretical probability is exactly 50% for each face.",
+                quantityLabel: "Number of Coins",
+                defaultQ: 1,
+                quantities: [1, 2, 3, 5],
+                qHelp: "Select how many coins to flip at once per run."
+            },
+            dice: {
+                title: "Standard 6-Sided Dice",
+                emoji: "🎲",
+                action: "Roll",
+                desc: "Roll multiple dice and count how many times each face (1-6) lands. Theoretical probability is 1/6 (~16.67%) for each face.",
+                quantityLabel: "Number of Dice",
+                defaultQ: 1,
+                quantities: [1, 2, 3, 5],
+                qHelp: "Select how many dice to roll at once per run."
+            },
+            dice_subtraction: {
+                title: "Dice Subtraction Game",
+                emoji: "➖",
+                action: "Roll",
+                desc: "Roll two standard dice and subtract the smaller face value from the larger one. Outcomes range from 0 to 5. Theoretical probabilities: 0: 6/36, 1: 10/36, 2: 8/36, 3: 6/36, 4: 4/36, 5: 2/36.",
+                quantityLabel: "Number of Pairs",
+                defaultQ: 1,
+                quantities: [1, 2, 3],
+                qHelp: "Select how many pairs of dice to roll."
+            },
+            dice_sums: {
+                title: "Two Dice Sums",
+                emoji: "➕",
+                action: "Roll",
+                desc: "Roll two standard dice and add their values together. Outcomes range from 2 to 12. Theoretical probability is triangular, peaked at Sum of 7 (6/36, ~16.67%).",
+                quantityLabel: "Number of Pairs",
+                defaultQ: 1,
+                quantities: [1, 2, 3],
+                qHelp: "Select how many pairs of dice to roll."
+            },
+            marbles: {
+                title: "Classroom Marble Bag",
+                emoji: "🔮",
+                action: "Draw",
+                desc: "Draw random marbles with replacement from a bag of customizable marble counts. Theoretical probability is the marble color count divided by the total marbles in the bag.",
+                quantityLabel: "Number of Draws",
+                defaultQ: 1,
+                quantities: [1, 2, 5, 10],
+                qHelp: "Draws are done with replacement, returning drawn marbles to the bag."
+            },
+            skittles: {
+                title: "Fun-Sized Skittles Pack",
+                emoji: "🍬",
+                action: "Draw",
+                desc: "Draw random Skittles candies with replacement from a bag of customizable counts. Compare how color frequencies settle into expected ratios.",
+                quantityLabel: "Number of Draws",
+                defaultQ: 1,
+                quantities: [1, 2, 5, 10],
+                qHelp: "Select how many Skittles to draw per run."
+            },
+            cards_suit: {
+                title: "Playing Cards: Suits",
+                emoji: "🎴",
+                action: "Draw",
+                desc: "Draw a card with replacement from a standard 52-card deck and record its suit (Hearts, Diamonds, Clubs, Spades). Theoretical probability is exactly 25% for each suit.",
+                quantityLabel: "Number of Cards Drawn",
+                defaultQ: 1,
+                quantities: [1, 2, 5],
+                qHelp: "Draws are done with replacement, resetting the deck each time."
+            },
+            cards_value: {
+                title: "Playing Cards: Values",
+                emoji: "🃏",
+                action: "Draw",
+                desc: "Draw a card with replacement and track if it is a Number card (A, 2-10 - 40/52 cards) or a Face card (J, Q, K - 12/52 cards). Theoretical ratio is 10/13 (~76.92%) vs 3/13 (~23.08%).",
+                quantityLabel: "Number of Cards Drawn",
+                defaultQ: 1,
+                quantities: [1, 2, 5],
+                qHelp: "Numbers include Aces. Faces are Jacks, Queens, Kings."
+            },
+            spinner: {
+                title: "Custom 4-Color Spinner",
+                emoji: "🎯",
+                action: "Spin",
+                desc: "Spin a 4-color wheel with customizable segment weights. Theoretical probability matches each color's weight relative to the sum of all weights.",
+                quantityLabel: "Number of Spins",
+                defaultQ: 1,
+                quantities: [1, 2, 5],
+                qHelp: "Select how many times to spin the wheel."
+            },
+            quiz: {
+                title: "True/False Quiz Guesser",
+                emoji: "📝",
+                action: "Guess",
+                desc: "Simulate a student randomly guessing answers on a true/false quiz. Here, Quantity represents the number of questions on the test. The outcomes are the total scores (0 to Q correct answers). Fits a Binomial distribution.",
+                quantityLabel: "Questions on the Test",
+                defaultQ: 5,
+                quantities: [3, 5, 10],
+                qHelp: "Select test question counts (higher Q creates more score divisions)."
+            },
+            weather: {
+                title: "Weather Forecaster",
+                emoji: "🌦️",
+                action: "Forecast",
+                desc: "Generate random days to simulate the chance of rain vs sunshine based on a customizable percentage chance of rain. Theoretical probability is set directly by the rain slider.",
+                quantityLabel: "Number of Days",
+                defaultQ: 7,
+                quantities: [1, 3, 7, 30],
+                qHelp: "Select how many forecasted days to test."
+            },
+            letters: {
+                title: "Letter Tiles Bag",
+                emoji: "🔤",
+                action: "Draw",
+                desc: "Draw tiles from a word bag. Customize the word to create unique outcome letters and probabilities.",
+                quantityLabel: "Number of Draws",
+                defaultQ: 1,
+                quantities: [1, 2, 5],
+                qHelp: "Letters are drawn with replacement."
+            }
+        };
+
+        // --- MATH CALCULATIONS ---
+        function getTheoreticalProbabilities() {
+            const mode = state.mode;
+            const qty = state.quantity;
+            let outcomes = {};
+
+            switch(mode) {
+                case 'coins':
+                    outcomes["Heads"] = 0.5; outcomes["Tails"] = 0.5;
+                    break;
+                case 'dice':
+                    for (let i = 1; i <= 6; i++) outcomes[i.toString()] = 1/6;
+                    break;
+                case 'dice_subtraction':
+                    const subCounts = { 0: 6, 1: 10, 2: 8, 3: 6, 4: 4, 5: 2 };
+                    for (let i = 0; i <= 5; i++) outcomes[i.toString()] = subCounts[i] / 36;
+                    break;
+                case 'dice_sums':
+                    const sumCounts = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
+                    for (let i = 2; i <= 12; i++) outcomes[i.toString()] = sumCounts[i] / 36;
+                    break;
+                case 'marbles':
+                    const mCounts = state.config.marbles.counts;
+                    const mTotal = Object.values(mCounts).reduce((a, b) => a + b, 0);
+                    if (mTotal === 0) {
+                        outcomes["Red"] = 0.25; outcomes["Blue"] = 0.25; outcomes["Green"] = 0.25; outcomes["Yellow"] = 0.25;
+                    } else {
+                        outcomes["Red"] = mCounts.red / mTotal; outcomes["Blue"] = mCounts.blue / mTotal;
+                        outcomes["Green"] = mCounts.green / mTotal; outcomes["Yellow"] = mCounts.yellow / mTotal;
+                    }
+                    break;
+                case 'skittles':
+                    const sCounts = state.config.skittles.counts;
+                    const sTotal = Object.values(sCounts).reduce((a, b) => a + b, 0);
+                    if (sTotal === 0) {
+                        outcomes["Red"] = 0.2; outcomes["Orange"] = 0.2; outcomes["Yellow"] = 0.2; outcomes["Green"] = 0.2; outcomes["Purple"] = 0.2;
+                    } else {
+                        outcomes["Red"] = sCounts.red / sTotal; outcomes["Orange"] = sCounts.orange / sTotal;
+                        outcomes["Yellow"] = sCounts.yellow / sTotal; outcomes["Green"] = sCounts.green / sTotal;
+                        outcomes["Purple"] = sCounts.purple / sTotal;
+                    }
+                    break;
+                case 'cards_suit':
+                    outcomes["Hearts ♥"] = 0.25; outcomes["Diamonds ♦"] = 0.25;
+                    outcomes["Clubs ♣"] = 0.25; outcomes["Spades ♠"] = 0.25;
+                    break;
+                case 'cards_value':
+                    outcomes["Number Cards"] = 40/52; outcomes["Face Cards"] = 12/52;
+                    break;
+                case 'spinner':
+                    const sWeights = state.config.spinner.weights;
+                    const wTotal = Object.values(sWeights).reduce((a, b) => a + b, 0);
+                    if (wTotal === 0) {
+                        outcomes["Red"] = 0.25; outcomes["Blue"] = 0.25; outcomes["Yellow"] = 0.25; outcomes["Green"] = 0.25;
+                    } else {
+                        outcomes["Red"] = sWeights.red / wTotal; outcomes["Blue"] = sWeights.blue / wTotal;
+                        outcomes["Yellow"] = sWeights.yellow / wTotal; outcomes["Green"] = sWeights.green / wTotal;
+                    }
+                    break;
+                case 'quiz':
+                    for (let k = 0; k <= qty; k++) {
+                        outcomes[k + " Correct"] = binomialPDF(qty, k, 0.5);
+                    }
+                    break;
+                case 'weather':
+                    const rainP = state.config.weather.rainChance / 100;
+                    outcomes["Rainy Day"] = rainP; outcomes["Sunny Day"] = 1 - rainP;
+                    break;
+                case 'letters':
+                    const word = (state.config.letters.word || "MATHEMATICS").toUpperCase().replace(/[^A-Z]/g, '');
+                    if (word.length === 0) {
+                        outcomes["Empty"] = 1.0;
+                    } else {
+                        const charCounts = {};
+                        for (let char of word) charCounts[char] = (charCounts[char] || 0) + 1;
+                        const sortedChars = Object.keys(charCounts).sort();
+                        for (let char of sortedChars) outcomes[char] = charCounts[char] / word.length;
+                    }
+                    break;
+            }
+            return outcomes;
+        }
+
+        function getSampleCount() {
+            return (state.mode === 'quiz') ? state.totalRuns : state.totalTrials;
+        }
+
+        // --- OUTCOME COLOR LOOKUP ---
+        function getOutcomeColor(outcome) {
+            const o = outcome.toLowerCase();
+            if (o.includes("red")) return "#dc2626"; // red-600
+            if (o.includes("blue")) return "#2563eb"; // blue-600
+            if (o.includes("green")) return "#16a34a"; // green-600
+            if (o.includes("yellow")) return "#d97706"; // yellow-600 / amber
+            if (o.includes("orange")) return "#ea580c"; // orange-600
+            if (o.includes("purple")) return "#7c3aed"; // purple-600
+            if (o === "heads" || o.includes("heart") || o.includes("diamond")) return "#dc2626"; // red/gold
+            if (o === "tails" || o.includes("club") || o.includes("spade") || o.includes("face")) return "#334155"; // slate-700
+            
+            // Generate friendly variations for dice and lists
+            const indexSeed = outcome.charCodeAt(0) || 0;
+            const colors = ["#4f46e5", "#0284c7", "#0891b2", "#0d9488", "#2563eb", "#4f46e5"];
+            return colors[indexSeed % colors.length];
+        }
+
+        // --- SIMULATOR TRIAL LOOP ---
+        function runSimulationBatch(iterations) {
+            const mode = state.mode;
+            const qty = state.quantity;
+            
+            const tempCounts = {};
+            const outcomes = Object.keys(getTheoreticalProbabilities());
+            for (let o of outcomes) tempCounts[o] = 0;
+            
+            if (mode === 'coins') {
+                let heads = 0;
+                let totalFlips = qty * iterations;
+                for (let i = 0; i < totalFlips; i++) {
+                    if (Math.random() < 0.5) heads++;
+                }
+                tempCounts["Heads"] = heads;
+                tempCounts["Tails"] = totalFlips - heads;
+            } 
+            else if (mode === 'dice') {
+                let totalRolls = qty * iterations;
+                const rolls = new Uint32Array(6);
+                for (let i = 0; i < totalRolls; i++) rolls[Math.floor(Math.random() * 6)]++;
+                for (let i = 0; i < 6; i++) tempCounts[(i+1).toString()] = rolls[i];
+            }
+            else if (mode === 'dice_subtraction') {
+                let totalPairs = qty * iterations;
+                const diffs = new Uint32Array(6);
+                for (let i = 0; i < totalPairs; i++) {
+                    const d1 = Math.floor(Math.random() * 6);
+                    const d2 = Math.floor(Math.random() * 6);
+                    diffs[Math.abs(d1 - d2)]++;
+                }
+                for (let i = 0; i < 6; i++) tempCounts[i.toString()] = diffs[i];
+            }
+            else if (mode === 'dice_sums') {
+                let totalPairs = qty * iterations;
+                const sums = new Uint32Array(13); 
+                for (let i = 0; i < totalPairs; i++) {
+                    const d1 = Math.floor(Math.random() * 6);
+                    const d2 = Math.floor(Math.random() * 6);
+                    sums[d1 + d2 + 2]++;
+                }
+                for (let i = 2; i <= 12; i++) tempCounts[i.toString()] = sums[i];
+            }
+            else if (mode === 'marbles') {
+                const mCounts = state.config.marbles.counts;
+                const redC = mCounts.red;
+                const blueC = mCounts.blue;
+                const greenC = mCounts.green;
+                const yellowC = mCounts.yellow;
+                const total = redC + blueC + greenC + yellowC;
+                
+                if (total > 0) {
+                    const limitRed = redC / total;
+                    const limitBlue = (redC + blueC) / total;
+                    const limitGreen = (redC + blueC + greenC) / total;
+                    
+                    let totalDraws = qty * iterations;
+                    let rCount = 0, bCount = 0, gCount = 0, yCount = 0;
+                    for (let i = 0; i < totalDraws; i++) {
+                        const r = Math.random();
+                        if (r < limitRed) rCount++;
+                        else if (r < limitBlue) bCount++;
+                        else if (r < limitGreen) gCount++;
+                        else yCount++;
+                    }
+                    tempCounts["Red"] = rCount;
+                    tempCounts["Blue"] = bCount;
+                    tempCounts["Green"] = gCount;
+                    tempCounts["Yellow"] = yCount;
+                }
+            }
+            else if (mode === 'skittles') {
+                const sCounts = state.config.skittles.counts;
+                const rC = sCounts.red;
+                const oC = sCounts.orange;
+                const yC = sCounts.yellow;
+                const gC = sCounts.green;
+                const pC = sCounts.purple;
+                const total = rC + oC + yC + gC + pC;
+                
+                if (total > 0) {
+                    const limitR = rC / total;
+                    const limitO = (rC + oC) / total;
+                    const limitY = (rC + oC + yC) / total;
+                    const limitG = (rC + oC + yC + gC) / total;
+                    
+                    let totalDraws = qty * iterations;
+                    let countR = 0, countO = 0, countY = 0, countG = 0, countP = 0;
+                    for (let i = 0; i < totalDraws; i++) {
+                        const r = Math.random();
+                        if (r < limitR) countR++;
+                        else if (r < limitO) countO++;
+                        else if (r < limitY) countY++;
+                        else if (r < limitG) countG++;
+                        else countP++;
+                    }
+                    tempCounts["Red"] = countR;
+                    tempCounts["Orange"] = countO;
+                    tempCounts["Yellow"] = countY;
+                    tempCounts["Green"] = countG;
+                    tempCounts["Purple"] = countP;
+                }
+            }
+            else if (mode === 'cards_suit') {
+                let totalDraws = qty * iterations;
+                const suits = new Uint32Array(4);
+                for (let i = 0; i < totalDraws; i++) suits[Math.floor(Math.random() * 4)]++;
+                tempCounts["Hearts ♥"] = suits[0];
+                tempCounts["Diamonds ♦"] = suits[1];
+                tempCounts["Clubs ♣"] = suits[2];
+                tempCounts["Spades ♠"] = suits[3];
+            }
+            else if (mode === 'cards_value') {
+                let totalDraws = qty * iterations;
+                let numberCards = 0;
+                for (let i = 0; i < totalDraws; i++) {
+                    if (Math.random() < (40/52)) numberCards++;
+                }
+                tempCounts["Number Cards"] = numberCards;
+                tempCounts["Face Cards"] = totalDraws - numberCards;
+            }
+            else if (mode === 'spinner') {
+                const sWeights = state.config.spinner.weights;
+                const rW = sWeights.red;
+                const bW = sWeights.blue;
+                const yW = sWeights.yellow;
+                const gW = sWeights.green;
+                const total = rW + bW + yW + gW;
+                
+                if (total > 0) {
+                    const limitR = rW / total;
+                    const limitB = (rW + bW) / total;
+                    const limitY = (rW + bW + yW) / total;
+                    
+                    let totalSpins = qty * iterations;
+                    let countR = 0, countB = 0, countY = 0, countG = 0;
+                    for (let i = 0; i < totalSpins; i++) {
+                        const r = Math.random();
+                        if (r < limitR) countR++;
+                        else if (r < limitB) countB++;
+                        else if (r < limitY) countY++;
+                        else countG++;
+                    }
+                    tempCounts["Red"] = countR;
+                    tempCounts["Blue"] = countB;
+                    tempCounts["Yellow"] = countY;
+                    tempCounts["Green"] = countG;
+                }
+            }
+            else if (mode === 'quiz') {
+                for (let iter = 0; iter < iterations; iter++) {
+                    let correct = 0;
+                    for (let q = 0; q < qty; q++) {
+                        if (Math.random() < 0.5) correct++;
+                    }
+                    tempCounts[correct + " Correct"]++;
+                }
+            }
+            else if (mode === 'weather') {
+                const rainP = state.config.weather.rainChance / 100;
+                let totalDays = qty * iterations;
+                let rainCount = 0;
+                for (let i = 0; i < totalDays; i++) {
+                    if (Math.random() < rainP) rainCount++;
+                }
+                tempCounts["Rainy Day"] = rainCount;
+                tempCounts["Sunny Day"] = totalDays - rainCount;
+            }
+            else if (mode === 'letters') {
+                const word = (state.config.letters.word || "MATHEMATICS").toUpperCase().replace(/[^A-Z]/g, '');
+                if (word.length > 0) {
+                    const lettersArr = word.split('');
+                    const wordLen = lettersArr.length;
+                    let totalDraws = qty * iterations;
+                    for (let i = 0; i < totalDraws; i++) {
+                        const letter = lettersArr[Math.floor(Math.random() * wordLen)];
+                        tempCounts[letter] = (tempCounts[letter] || 0) + 1;
+                    }
+                }
+            }
+            
+            return tempCounts;
+        }
+
+        function accumulateBatch(tempCounts, batchIterations) {
+            const mode = state.mode;
+            const qty = state.quantity;
+            let trialsAdded = (mode === 'quiz') ? batchIterations : qty * batchIterations;
+            
+            state.totalRuns += batchIterations;
+            state.totalTrials += trialsAdded;
+            
+            for (let outcome in tempCounts) {
+                state.experimentalCounts[outcome] = (state.experimentalCounts[outcome] || 0) + tempCounts[outcome];
+            }
+        }
+
+        // --- RUNNING SIMULATIONS ---
+        function runSimulation(targetIterations) {
+            disableControls();
+            document.getElementById("statMachineStatus").textContent = "Running...";
+            document.getElementById("statMachineStatus").className = "text-xl font-black text-amber-600 uppercase tracking-tight";
+            
+            let remaining = targetIterations;
+            const chunkSize = 50; // Smaller chunk size for watchable visual progression!
+            
+            const progressContainer = document.getElementById("simProgressBarContainer");
+            const progressBar = document.getElementById("simProgressBar");
+            const progressPct = document.getElementById("simProgressPct");
+            
+            if (targetIterations >= 10) {
+                progressContainer.classList.remove("hidden");
+            }
+
+            function processNextChunk() {
+                if (remaining > 0) {
+                    const currentBatch = Math.min(remaining, chunkSize);
+                    const temp = runSimulationBatch(currentBatch);
+                    accumulateBatch(temp, currentBatch);
+                    
+                    remaining -= currentBatch;
+                    if (targetIterations >= 10) {
+                        const progress = targetIterations - remaining;
+                        const pct = Math.round((progress / targetIterations) * 100);
+                        progressBar.style.width = pct + "%";
+                        progressPct.textContent = pct + "%";
+                    }
+                    
+                    // Update graph and scoreboard live between frames!
+                    updateUI();
+                    
+                    requestAnimationFrame(processNextChunk);
+                } else {
+                    progressContainer.classList.add("hidden");
+                    enableControls();
+                    document.getElementById("statMachineStatus").textContent = "Ready";
+                    document.getElementById("statMachineStatus").className = "text-xl font-black text-emerald-700 uppercase tracking-tight";
+                    updateUI();
+                    AudioLab.playSuccess();
+                }
+            }
+
+            processNextChunk();
+        }
+
+        // --- UI DRAWING & SCOREBOARD GRID ---
+        function updateUI() {
+            document.getElementById("statTotalRuns").textContent = state.totalRuns.toLocaleString();
+            document.getElementById("statTotalTrials").textContent = state.totalTrials.toLocaleString();
+            
+            const theoreticals = getTheoreticalProbabilities();
+            const outcomes = Object.keys(theoreticals);
+            
+            // Build Scoreboard Grid instead of decimal tables
+            const grid = document.getElementById("scoreboardGrid");
+            grid.innerHTML = "";
+            
+            outcomes.forEach((outcome) => {
+                const expFreq = state.experimentalCounts[outcome] || 0;
+                const outColor = getOutcomeColor(outcome);
+                
+                const card = document.createElement("div");
+                card.className = "bg-white border-4 rounded-2xl p-4 flex flex-col justify-between items-center text-center shadow-sm";
+                card.style.borderColor = outColor;
+                
+                card.innerHTML = `
+                    <div class="text-base font-black uppercase tracking-wider text-slate-800">${outcome}</div>
+                    <div class="text-3xl font-black mt-2" style="color: ${outColor}">${expFreq.toLocaleString()}</div>
+                    <div class="text-xs text-slate-500 font-bold mt-1 uppercase">Times Drawn</div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            drawBarChart();
+        }
+
+        // --- CANVAS RENDERING: MULTI-COLOR DYNAMIC BAR CHART ---
+        function drawBarChart() {
+            const canvas = document.getElementById("barChartCanvas");
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            const ctx = canvas.getContext("2d");
+            ctx.scale(dpr, dpr);
+            
+            const width = rect.width;
+            const height = rect.height;
+            
+            // Projector white background
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, width, height);
+            
+            const theoreticals = getTheoreticalProbabilities();
+            const outcomes = Object.keys(theoreticals);
+            const sampleCount = getSampleCount();
+            
+            const paddingLeft = 50;
+            const paddingRight = 15;
+            const paddingTop = 25;
+            const paddingBottom = 45;
+            const graphWidth = width - paddingLeft - paddingRight;
+            const graphHeight = height - paddingTop - paddingBottom;
+            
+            let maxVal = 0.25;
+            outcomes.forEach((out) => {
+                const theory = theoreticals[out];
+                const exp = sampleCount > 0 ? (state.experimentalCounts[out] || 0) / sampleCount : 0;
+                maxVal = Math.max(maxVal, theory, exp);
+            });
+            maxVal = Math.min(1.0, Math.ceil(maxVal * 10) / 10);
+            
+            // Grid lines
+            ctx.strokeStyle = "#f1f5f9";
+            ctx.lineWidth = 2;
+            ctx.fillStyle = "#334155";
+            ctx.font = "bold 11px Outfit, sans-serif";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            
+            const gridCount = 5;
+            for (let i = 0; i <= gridCount; i++) {
+                const val = (maxVal / gridCount) * i;
+                const y = paddingTop + graphHeight - (val / maxVal) * graphHeight;
+                ctx.beginPath();
+                ctx.moveTo(paddingLeft, y);
+                ctx.lineTo(width - paddingRight, y);
+                ctx.stroke();
+                ctx.fillText((val * 100).toFixed(0) + "%", paddingLeft - 10, y);
+            }
+            
+            const numCategories = outcomes.length;
+            const categoryWidth = graphWidth / numCategories;
+            const innerGapRatio = 0.25;
+            const outerGapRatio = 0.2;
+            
+            outcomes.forEach((outcome, idx) => {
+                const theoryP = theoreticals[outcome];
+                const expFreq = state.experimentalCounts[outcome] || 0;
+                const expP = sampleCount > 0 ? (expFreq / sampleCount) : 0;
+                const outColor = getOutcomeColor(outcome);
+                
+                const cX = paddingLeft + idx * categoryWidth;
+                const cWidth = categoryWidth * (1 - outerGapRatio);
+                const barWidth = cWidth / 2 * (1 - innerGapRatio);
+                
+                const theoryX = cX + (categoryWidth * outerGapRatio) / 2;
+                const expX = theoryX + barWidth + (cWidth * innerGapRatio);
+                
+                const theoryY = paddingTop + graphHeight - (theoryP / maxVal) * graphHeight;
+                const expY = paddingTop + graphHeight - (expP / maxVal) * graphHeight;
+                const zeroY = paddingTop + graphHeight;
+                
+                // Draw Theoretical Frame (Slight outline of expected color)
+                ctx.save();
+                ctx.strokeStyle = outColor;
+                ctx.lineWidth = 3;
+                ctx.setLineDash([4, 4]); // Dashed outline for expected theory
+                ctx.fillStyle = "rgba(0, 0, 0, 0.02)"; 
+                const tHeight = zeroY - theoryY;
+                drawRoundedRect(ctx, theoryX, theoryY, barWidth, tHeight, 6);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                
+                // Draw Experimental (Solid Fill with theme color)
+                if (sampleCount > 0 && expFreq > 0) {
+                    ctx.save();
+                    ctx.fillStyle = outColor;
+                    const eHeight = zeroY - expY;
+                    drawRoundedRect(ctx, expX, expY, barWidth, eHeight, 6);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                
+                // Label
+                ctx.save();
+                ctx.fillStyle = "#1e293b";
+                ctx.font = "bold 12px Outfit, sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+                
+                const labelX = (theoryX + expX + barWidth) / 2;
+                const labelY = zeroY + 8;
+                
+                let displayLabel = outcome;
+                if (numCategories > 8 && displayLabel.length > 8) {
+                    displayLabel = displayLabel.slice(0, 6) + "..";
+                }
+                
+                if (numCategories > 6) {
+                    ctx.translate(labelX, labelY);
+                    ctx.rotate(-Math.PI / 8);
+                    ctx.fillText(displayLabel, 0, 0);
+                } else {
+                    ctx.fillText(displayLabel, labelX, labelY);
+                }
+                ctx.restore();
+            });
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            if (height <= 0) return;
+            if (height < radius) radius = height;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height);
+            ctx.lineTo(x, y + height);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // --- CONTEXTUAL OPTIONS BUILDER (PLUS/MINUS) ---
+        function renderContextualSettings() {
+            const mode = state.mode;
+            const container = document.getElementById("contextualSettings");
+            const inputsDiv = document.getElementById("contextInputs");
+            
+            inputsDiv.innerHTML = "";
+            let showSettings = false;
+
+            if (mode === 'marbles') {
+                showSettings = true;
+                const counts = state.config.marbles.counts;
+                const colors = ['red', 'blue', 'green', 'yellow'];
+                colors.forEach(col => {
+                    inputsDiv.appendChild(createPlusMinusControl(`marbles-${col}`, `🔮 ${col.toUpperCase()} Marbles`, counts[col], 0, 20, (val) => {
+                        state.config.marbles.counts[col] = val;
+                        resetSimulationData();
+                    }));
+                });
+            } 
+            else if (mode === 'skittles') {
+                showSettings = true;
+                const counts = state.config.skittles.counts;
+                const colors = ['red', 'orange', 'yellow', 'green', 'purple'];
+                colors.forEach(col => {
+                    inputsDiv.appendChild(createPlusMinusControl(`skittles-${col}`, `🍬 ${col.toUpperCase()} Skittles`, counts[col], 0, 20, (val) => {
+                        state.config.skittles.counts[col] = val;
+                        resetSimulationData();
+                    }));
+                });
+            }
+            else if (mode === 'spinner') {
+                showSettings = true;
+                const weights = state.config.spinner.weights;
+                const colors = ['red', 'blue', 'yellow', 'green'];
+                colors.forEach(col => {
+                    inputsDiv.appendChild(createPlusMinusControl(`spinner-${col}`, `🎯 ${col.toUpperCase()} Sector Weight`, weights[col], 0, 50, (val) => {
+                        state.config.spinner.weights[col] = val;
+                        resetSimulationData();
+                    }));
+                });
+            }
+            else if (mode === 'weather') {
+                showSettings = true;
+                const val = state.config.weather.rainChance;
+                
+                // Friendly weather preset button row
+                const div = document.createElement("div");
+                div.className = "flex flex-col gap-2";
+                div.innerHTML = `
+                    <label class="text-sm font-extrabold text-slate-800 uppercase">🌦️ Chance of Rain</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button data-rain="10" class="rain-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${val===10?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">☀️ Dry (10%)</button>
+                        <button data-rain="30" class="rain-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${val===30?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">🌤️ Light (30%)</button>
+                        <button data-rain="70" class="rain-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${val===70?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">🌧️ Rainy (70%)</button>
+                        <button data-rain="90" class="rain-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${val===90?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">⛈️ Stormy (90%)</button>
+                    </div>
+                `;
+                inputsDiv.appendChild(div);
+                
+                div.querySelectorAll(".rain-preset").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const rVal = parseInt(btn.dataset.rain);
+                        state.config.weather.rainChance = rVal;
+                        AudioLab.playChirp();
+                        renderContextualSettings();
+                        resetSimulationData();
+                    });
+                });
+            }
+            else if (mode === 'letters') {
+                showSettings = true;
+                const activeWord = state.config.letters.word;
+                
+                // Fun preset words button row
+                const div = document.createElement("div");
+                div.className = "flex flex-col gap-2";
+                div.innerHTML = `
+                    <label class="text-sm font-extrabold text-slate-800 uppercase">🔤 Words in the Bag</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button data-word="MATH" class="word-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${activeWord==='MATH'?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">MATH</button>
+                        <button data-word="ARCADE" class="word-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${activeWord==='ARCADE'?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">ARCADE</button>
+                        <button data-word="GAME" class="word-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${activeWord==='GAME'?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">GAME</button>
+                        <button data-word="PIZZA" class="word-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${activeWord==='PIZZA'?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">PIZZA</button>
+                        <button data-word="SUPER" class="word-preset py-2 px-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs hover:bg-slate-50 transition ${activeWord==='SUPER'?'border-indigo-600 bg-indigo-50 text-indigo-700':''}">SUPER</button>
+                    </div>
+                `;
+                inputsDiv.appendChild(div);
+                
+                div.querySelectorAll(".word-preset").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const word = btn.dataset.word;
+                        state.config.letters.word = word;
+                        AudioLab.playChirp();
+                        renderContextualSettings();
+                        resetSimulationData();
+                    });
+                });
+            }
+
+            if (showSettings) container.classList.remove("hidden");
+            else container.classList.add("hidden");
+        }
+
+        // Helper: Create friendly tactile plus/minus adjusters
+        function createPlusMinusControl(id, label, value, min, max, onChange) {
+            const div = document.createElement("div");
+            div.className = "flex items-center justify-between bg-white border-2 border-slate-300 rounded-2xl p-3 shadow-sm";
+            div.innerHTML = `
+                <span class="text-xs text-slate-800 font-extrabold uppercase">${label}</span>
+                <div class="flex items-center gap-3">
+                    <button class="minus-btn w-9 h-9 rounded-lg bg-slate-200 border-b-4 border-slate-400 font-black text-lg flex items-center justify-center transition active:translate-y-[2px] active:border-b-0">-</button>
+                    <span class="font-mono font-black text-base w-6 text-center text-indigo-950">${value}</span>
+                    <button class="plus-btn w-9 h-9 rounded-lg bg-slate-200 border-b-4 border-slate-400 font-black text-lg flex items-center justify-center transition active:translate-y-[2px] active:border-b-0">+</button>
+                </div>
+            `;
+            
+            const minusBtn = div.querySelector(".minus-btn");
+            const plusBtn = div.querySelector(".plus-btn");
+            const valSpan = div.querySelector("span:nth-child(2)");
+            
+            minusBtn.addEventListener("click", () => {
+                let val = parseInt(valSpan.textContent);
+                if (val > min) {
+                    val--;
+                    valSpan.textContent = val;
+                    AudioLab.playChirp();
+                    onChange(val);
+                }
+            });
+            plusBtn.addEventListener("click", () => {
+                let val = parseInt(valSpan.textContent);
+                if (val < max) {
+                    val++;
+                    valSpan.textContent = val;
+                    AudioLab.playChirp();
+                    onChange(val);
+                }
+            });
+            
+            return div;
+        }
+
+        // --- NAVIGATION STATE MANAGEMENT ---
+        function openWorkspace(newMode) {
+            state.mode = newMode;
+            
+            const meta = MODES[newMode];
+            state.quantity = meta.defaultQ;
+            
+            // Build Quantity Button options instead of sliders
+            const qtyContainer = document.getElementById("quantityButtons");
+            qtyContainer.innerHTML = "";
+            
+            meta.quantities.forEach((val) => {
+                const label = `${val} ${val === 1 ? meta.quantityLabel.split(" ").slice(-1)[0].replace(/s$/, '') : meta.quantityLabel.split(" ").slice(-1)[0]}`;
+                const btn = document.createElement("button");
+                btn.className = `qty-btn py-2 px-4 rounded-xl border-2 border-slate-300 bg-white font-extrabold text-sm hover:bg-slate-50 transition active:scale-95 shadow-sm ${state.quantity === val ? 'bg-indigo-600 text-white border-indigo-700 hover:bg-indigo-600':''}`;
+                btn.textContent = label;
+                
+                btn.addEventListener("click", () => {
+                    state.quantity = val;
+                    AudioLab.playChirp();
+                    
+                    // Highlight selected quantity button
+                    qtyContainer.querySelectorAll(".qty-btn").forEach(b => {
+                        b.classList.remove("bg-indigo-600", "text-white", "border-indigo-700", "hover:bg-indigo-600");
+                        b.classList.add("bg-white", "text-slate-900", "border-slate-300");
+                    });
+                    btn.classList.remove("bg-white", "text-slate-900", "border-slate-300");
+                    btn.classList.add("bg-indigo-600", "text-white", "border-indigo-700", "hover:bg-indigo-600");
+                    
+                    resetSimulationData();
+                });
+                
+                qtyContainer.appendChild(btn);
+            });
+            
+            document.getElementById("quantityLabel").textContent = meta.quantityLabel;
+            document.getElementById("quantityHelp").textContent = meta.qHelp;
+            
+            // Rename Action Buttons
+            document.querySelectorAll(".run-btn").forEach((btn) => {
+                const iter = btn.dataset.run;
+                btn.textContent = `${meta.action} ${iter}x`;
+            });
+            document.getElementById("runActionLabel").textContent = `${meta.action} Items (Run Iterations)`;
+            
+            document.getElementById("activeWorkspaceBadge").textContent = meta.emoji;
+            document.getElementById("activeWorkspaceTitle").textContent = meta.title;
+            document.getElementById("activeWorkspaceDesc").textContent = meta.desc;
+            
+            renderContextualSettings();
+            resetSimulationData();
+
+            document.getElementById("launcherScreen").classList.add("hidden");
+            document.getElementById("workspaceScreen").classList.remove("hidden");
+            
+            setTimeout(() => {
+                drawBarChart();
+            }, 50);
+        }
+
+        function closeWorkspace() {
+            resetSimulationData();
+            document.getElementById("workspaceScreen").classList.add("hidden");
+            document.getElementById("launcherScreen").classList.remove("hidden");
+            AudioLab.playReset();
+        }
+
+        function resetSimulationData() {
+            state.totalRuns = 0;
+            state.totalTrials = 0;
+            state.experimentalCounts = {};
+            
+            const outcomes = Object.keys(getTheoreticalProbabilities());
+            outcomes.forEach(o => state.experimentalCounts[o] = 0);
+            
+            updateUI();
+        }
+
+        function disableControls() {
+            document.querySelectorAll(".run-btn, #resetBtn, #backBtn, .qty-btn, .plus-btn, .minus-btn, .word-preset, .rain-preset")
+                .forEach(el => el.disabled = true);
+            document.getElementById("resetBtn").classList.add("opacity-50");
+            document.getElementById("backBtn").classList.add("opacity-50");
+        }
+
+        function enableControls() {
+            document.querySelectorAll(".run-btn, #resetBtn, #backBtn, .qty-btn, .plus-btn, .minus-btn, .word-preset, .rain-preset")
+                .forEach(el => el.disabled = false);
+            document.getElementById("resetBtn").classList.remove("opacity-50");
+            document.getElementById("backBtn").classList.remove("opacity-50");
+        }
+
+        // --- INTERACTIVITY INITIALIZATION ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // Launcher Selection
+            document.querySelectorAll("[data-launcher-mode]").forEach(card => {
+                card.addEventListener("click", () => {
+                    openWorkspace(card.dataset.launcherMode);
+                    AudioLab.playChirp();
+                });
+            });
+
+            // Back button
+            document.getElementById("backBtn").addEventListener("click", () => {
+                closeWorkspace();
+            });
+
+            // Quick Runs
+            document.querySelectorAll(".run-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    runSimulation(parseInt(btn.dataset.run));
+                });
+            });
+
+
+
+            // Reset
+            document.getElementById("resetBtn").addEventListener("click", () => {
+                resetSimulationData();
+                AudioLab.playReset();
+            });
+
+            // Sound Toggle
+            const soundToggleBtn = document.getElementById("soundToggleBtn");
+            const soundIcon = document.getElementById("soundIcon");
+            soundToggleBtn.addEventListener("click", () => {
+                AudioLab.muted = !AudioLab.muted;
+                if (AudioLab.muted) {
+                    soundIcon.textContent = "🔇";
+                    soundToggleBtn.classList.add("bg-slate-200", "text-slate-500");
+                    soundToggleBtn.classList.remove("bg-white", "text-slate-800");
+                    soundToggleBtn.querySelector("span:last-child").textContent = "Sound: MUTED";
+                } else {
+                    soundIcon.textContent = "🔊";
+                    soundToggleBtn.classList.remove("bg-slate-200", "text-slate-500");
+                    soundToggleBtn.classList.add("bg-white", "text-slate-800");
+                    soundToggleBtn.querySelector("span:last-child").textContent = "Sound: ON";
+                    AudioLab.playChirp();
+                }
+            });
+
+            // Help Modal
+            const helpModal = document.getElementById("helpModal");
+            document.getElementById("helpBtn").addEventListener("click", () => {
+                helpModal.classList.remove("hidden");
+                AudioLab.playChirp();
+            });
+            document.getElementById("closeHelpBtn").addEventListener("click", () => {
+                helpModal.classList.add("hidden");
+            });
+            document.getElementById("closeHelpBtnBig").addEventListener("click", () => {
+                helpModal.classList.add("hidden");
+                AudioLab.playChirp();
+            });
+
+            window.addEventListener("resize", () => {
+                drawBarChart();
+            });
+        });
+    </script>
+</body>
+</html>
